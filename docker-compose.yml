@@ -9,6 +9,7 @@ x-volumes:
     # Define all volumes you would like to have real-time mounted into the docker containers
     volumes:
       - .:/app:delegated
+      - ./prepend.php:/app/prepend.php
 
 x-environment:
   &default-environment
