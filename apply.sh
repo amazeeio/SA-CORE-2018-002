@@ -24,18 +24,20 @@ while read -r line ; do
     # Check for php container
     if oc get -n $line dc nginx | grep -q php; then
 
-        # Check if prepend-php exists.
-        if ! oc get -n $line configmaps | grep -q prepend-php; then
+        # Check if prepend-php-004 exists.
+        if ! oc get -n $line configmaps | grep -q prepend-php-004; then
 
-            # Add prepend-php config map.
-            oc create -n $line configmap prepend-php --from-file=./prepend.php
+            # Add prepend-php-004 config map.
+            oc create -n $line configmap prepend-php-004 --from-file=./prepend.php
 
             # Mount config map to php container.
-            oc volume -n $line --containers="php" dc/nginx --overwrite --add -t configmap -m /usr/local/etc/php/map --name=prepend-php --configmap-name=prepend-php
+            oc volume -n $line --containers="php" dc/nginx --overwrite --add -t configmap -m /usr/local/etc/php/map --name=prepend-php --configmap-name=prepend-php-004
 
             # Add PHP_AUTO_PREPEND_FILE to php container.
             oc set env -n $line --containers="php" dc/nginx PHP_AUTO_PREPEND_FILE=/usr/local/etc/php/map/prepend.php
 
+            # Force a deployment of the nginx pod, containing the php container.
+            oc rollout latest dc/nginx
         fi
 
         # Check if php container has auto_prepend_file configured.
