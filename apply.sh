@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash
 ##
 # Apply platform protection for SA-CORE-2018-002.
 #
@@ -53,7 +53,7 @@ while read -r line ; do
     echo "################################################"
     echo ""
 
-done < <(echo 'drupal-example-mariadb')
+done < <(oc projects --short)
 
 echo "Unprotected projects:"
 printf '%s\n' "${UNPROTECTED_PROJECTS[@]}"
