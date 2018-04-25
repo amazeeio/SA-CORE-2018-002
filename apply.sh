@@ -34,7 +34,7 @@ while read -r line ; do
             oc volume -n $line --containers="php" deploymentconfig/nginx --overwrite --add -t configmap -m /usr/local/etc/php/map --name=prepend-php --configmap-name=prepend-php-004
 
             # Add PHP_AUTO_PREPEND_FILE to php container.
-            oc set env -n $line --containers="php" ddeploymentconfigc/nginx PHP_AUTO_PREPEND_FILE=/usr/local/etc/php/map/prepend.php
+            oc set env -n $line --containers="php" deploymentconfig/nginx PHP_AUTO_PREPEND_FILE=/usr/local/etc/php/map/prepend.php
 
             # Force a deployment of the nginx pod, containing the php container.
             oc -n $line rollout latest deploymentconfig/nginx
