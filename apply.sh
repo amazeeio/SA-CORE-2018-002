@@ -41,7 +41,7 @@ while read -r line ; do
         fi
 
         # Check if php container has auto_prepend_file configured.
-        if oc rsh -n $line --container="php" deploymentconfig/nginx grep -q /usr/local/etc/php/map/prepend.php /usr/local/etc/php/php.ini < /dev/null; then
+        if oc rsh -n $line --container="php" deploymentconfig/nginx grep -q "LagoonRequestSanitizer::cleanDestination" /usr/local/etc/php/map/prepend.php < /dev/null; then
             echo "$line is protected."
         else
             echo "$line is unprotected."
