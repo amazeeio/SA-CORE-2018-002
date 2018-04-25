@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 ##
 # Apply platform protection for SA-CORE-2018-002.
 #
@@ -22,7 +22,7 @@ while read -r line ; do
     echo "################################################"
 
     # Check for php container
-    if oc get -n $line dc nginx | grep -q php; then
+    if oc describe -n $line deploymentconfig/nginx | grep -q 'php:'; then
 
         # Check if prepend-php-004 exists.
         if ! oc get -n $line configmaps | grep -q prepend-php-004; then
@@ -31,17 +31,17 @@ while read -r line ; do
             oc create -n $line configmap prepend-php-004 --from-file=./prepend.php
 
             # Mount config map to php container.
-            oc volume -n $line --containers="php" dc/nginx --overwrite --add -t configmap -m /usr/local/etc/php/map --name=prepend-php --configmap-name=prepend-php-004
+            oc volume -n $line --containers="php" deploymentconfig/nginx --overwrite --add -t configmap -m /usr/local/etc/php/map --name=prepend-php --configmap-name=prepend-php-004
 
             # Add PHP_AUTO_PREPEND_FILE to php container.
-            oc set env -n $line --containers="php" dc/nginx PHP_AUTO_PREPEND_FILE=/usr/local/etc/php/map/prepend.php
+            oc set env -n $line --containers="php" ddeploymentconfigc/nginx PHP_AUTO_PREPEND_FILE=/usr/local/etc/php/map/prepend.php
 
             # Force a deployment of the nginx pod, containing the php container.
-            oc rollout latest dc/nginx
+            oc -n $line rollout latest deploymentconfig/nginx
         fi
 
         # Check if php container has auto_prepend_file configured.
-        if oc rsh -n $line --container="php" dc/nginx grep -q /usr/local/etc/php/map/prepend.php /usr/local/etc/php/php.ini < /dev/null; then
+        if oc rsh -n $line --container="php" deploymentconfig/nginx grep -q /usr/local/etc/php/map/prepend.php /usr/local/etc/php/php.ini < /dev/null; then
             echo "$line is protected."
         else
             echo "$line is unprotected."
@@ -53,7 +53,7 @@ while read -r line ; do
     echo "################################################"
     echo ""
 
-done < <(oc projects --short)
+done < <(echo 'drupal-example-mariadb')
 
 echo "Unprotected projects:"
 printf '%s\n' "${UNPROTECTED_PROJECTS[@]}"
